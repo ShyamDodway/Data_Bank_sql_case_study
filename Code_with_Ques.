@@ -1,3 +1,91 @@
+# Code with Question Soultion
+
+/* --------------------------------
+# Table 1 A.Customer Nodes Exploration.
+--------------------------------*/
+
+ # 1. How many unique nodes are there on the Data Bank system?
+
+-- By Using the DISTINCT Statement
+ SELECT count(distinct node_id) as unique_nodes from customer_nodes;
+ +--------------+
+| unique_nodes |
++--------------+
+|            5 |
++--------------+
+1 row in set (0.02 sec)
+
+# -- 2. What is the number of nodes per region?
+
+mysql> select region_id,count(node_id) as nodes_count_per_region from customer_nodes group by region_id order by region_id asc;
++-----------+------------------------+
+| region_id | nodes_count_per_region |
++-----------+------------------------+
+|         1 |                    770 |
+|         2 |                    735 |
+|         3 |                    714 |
+|         4 |                    665 |
+|         5 |                    616 |
++-----------+------------------------+
+5 rows in set (0.01 sec)
+
+# ---3. How many customers are allocated to each region?
+
+mysql> select region_id,count(distinct customer_id) from customer_nodes group by region_id;
++-----------+-----------------------------+
+| region_id | count(distinct customer_id) |
++-----------+-----------------------------+
+|         1 |                         110 |
+|         2 |                         105 |
+|         3 |                         102 |
+|         4 |                          95 |
+|         5 |                          88 |
++-----------+-----------------------------+
+5 rows in set (0.38 sec)
+
+# -- 4. How many days on average are customers reallocated to a different node?
+
+mysql> select AVG(DATEDIFF(end_date,start_date)) as average_days_for_reallocation from customer_nodes;
++-------------------------------+
+| average_days_for_reallocation |
++-------------------------------+
+|                   416373.4117 |
++-------------------------------+
+1 row in set (0.01 sec)
+
+/* --------------------------------------
+# B. Customer Transactions
+----------------------------------------*/
+
+# **---1 what is the unique count and total amount for each transaction type? 
+**
+mysql> select txn_type, count(distinct customer_id) as unique_customer_count,sum(txn_amount) as total_amount from customer_transactions group by txn_type;
+
++------------+-----------------------+--------------+
+| txn_type   | unique_customer_count | total_amount |
++------------+-----------------------+--------------+
+| deposit    |                   500 |      1359168 |
+| purchase   |                   448 |       806537 |
+| withdrawal |                   439 |       793003 |
++------------+-----------------------+--------------+
+3 rows in set (1.83 sec)
+
+# **-- 2. What is the average total historical deposit counts and amounts for all customers?
+**
+mysql> select count(customer_id) as deposit_count, avg(txn_amount) as average_deposits from customer_transactions where txn_type = 'deposit' group by cust
+omer_id;
++---------------+------------------+
+| deposit_count | average_deposits |
++---------------+------------------+
+|             3 |         389.6667 |
+|             6 |         607.8333 |
+|             6 |         654.0000 |
+
+/* --------------------
+ C. Data Allocation Challenge
+   --------------------*/
+# -- 1. running customer balance column that includes the impact at each transaction
+
 mysql> WITH amount_cal AS (
     ->     SELECT
     ->         customer_id,
@@ -114,3 +202,4 @@ mysql> WITH amount_cal AS (
 |          10 | 2020-04-09 | purchase   |                    -4116 |
 |          10 | 2020-04-10 | purchase   |                    -5090 |
 |          11 | 2020-01-19 | deposit    |                       60 |
+   
